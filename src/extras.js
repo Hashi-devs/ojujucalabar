@@ -86,9 +86,10 @@ function viewGallery(i, back) {
 const CREDITS = [
   ['', 'OJUJU CALABAR'],
   ['A game by', 'Muniac Studios'],
-  ['Story and art', 'Amuro'],
+  ['Game developer', 'Muniac'],
+  ['Story and comic panel designer', 'Amuro'],
+  // voice actors go here when Amuro sends the names, e.g. ['Tobi', 'Name'],
   ['Sound effects', 'Kenney (kenney.nl) and Mixkit (mixkit.co)'],
-  ['Voices and recordings', 'Muniac Studios'],
   ['', 'Made in Nigeria.'],
   ['', 'Thank you for going back into the house.']
 ];

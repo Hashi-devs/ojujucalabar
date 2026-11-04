@@ -61,7 +61,7 @@ if os.path.isdir(vdir):
             print('voice line embedded:', fn, len(voices[vid]) // 1024, 'KB')
         except Exception as e:
             print('could not convert', fn, e)
-VERSION = '4.5.0'
+VERSION = '4.5.1'
 # drawings dropped into a folder by name replace the placeholder of that name:
 #   assets/comic/<panel art id>.png|jpg|jpeg|webp  -> comic panels
 #   assets/gallery/<g1..g7>.png|jpg|jpeg|webp      -> gallery pictures
