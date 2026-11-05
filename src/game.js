@@ -1683,9 +1683,13 @@ function bootLoading() {
   showLoading();
   const bar = $('.lbar i', loadEl), btn = $('.btn', loadEl);
   // the opening: "Muniac Studios" alone on black for three seconds, then the picture; Tap to enter comes two seconds after that
-  const sp = $('#splash'), SPLASH_MS = 3000, AFTER_MS = 2000;
+  const sp = $('#splash'), SPLASH_MS = 3200, AFTER_MS = 2000;
   const shownAt = Date.now() + (sp ? SPLASH_MS : 0);
-  if (sp) sp.classList.add('play');
+  if (sp) {   // split the name into letters, each flickering on at its own moment
+    const nm = $('.sp', sp);
+    if (nm && !nm.dataset.split) { nm.dataset.split = '1'; nm.innerHTML = [...nm.textContent].map((ch, k) => ch === ' ' ? ' ' : `<span style="--d:${(.35 + Math.random() * .9 + k * .015).toFixed(2)}s">${ch}</span>`).join(''); }
+    sp.classList.add('play');
+  }
   if (sp) setTimeout(() => { sp.classList.add('off'); setTimeout(() => sp.classList.add('gone'), 650); }, SPLASH_MS);
   const ready = () => { bar.style.width = '100%'; setTimeout(() => hideLoading(), Math.max(400, shownAt + AFTER_MS - Date.now())); };   // no Tap to enter here: the home screen has Start
   btn.onclick = () => { Snd.init(); goLandscape(); hideLoading(); if (!G.started) Snd.music(true); };

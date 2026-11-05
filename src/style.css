@@ -1134,11 +1134,30 @@ body.lbtitle #modal { z-index: 70; }
 #splash { position: fixed; inset: 0; z-index: 400; background: #000; display: flex; align-items: center; justify-content: center; transition: opacity .6s ease; }
 #splash.off { opacity: 0; pointer-events: none; }
 #splash.gone { display: none; }
-#splash .sp { font-family: "Boldonse", var(--font-display); color: #fff; font-size: clamp(22px, 7vw, 54px); line-height: 1.4; letter-spacing: .02em; text-transform: uppercase; text-align: center; padding: 0 20px;
-  opacity: 0; }
-#splash.play .sp { animation: spname 3s ease-in-out forwards; }
-@keyframes spname { 0% { opacity: 0; transform: scale(.98); } 22% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { #splash.play .sp { animation: none; opacity: 1; } }
+/* the studio card: an ember glow, letters that flicker on like a failing bulb, a line drawn out, a glitch, then black */
+#splash .spwrap { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 20px; }
+#splash .sp { font-family: "Boldonse", var(--font-display); color: #fff; font-size: clamp(22px, 7vw, 56px); line-height: 1.4; letter-spacing: .04em; text-transform: uppercase; text-align: center; white-space: nowrap; }
+#splash .sp span { display: inline-block; opacity: 0; }
+#splash.play .sp span { animation: spflick .55s steps(1, end) forwards; animation-delay: var(--d); }
+@keyframes spflick { 0% { opacity: 0; } 12% { opacity: 1; } 22% { opacity: .1; } 34% { opacity: .9; } 46% { opacity: 0; } 60% { opacity: 1; text-shadow: 0 0 18px rgba(255, 170, 90, .9); } 100% { opacity: 1; text-shadow: 0 0 22px rgba(235, 148, 64, .45), 0 0 2px #fff; } }
+#splash .spline { display: block; width: min(420px, 70vw); height: 2px; background: linear-gradient(90deg, transparent, #eb9440 20%, #ffd9a0 50%, #eb9440 80%, transparent); transform: scaleX(0); box-shadow: 0 0 12px rgba(235, 148, 64, .8); }
+#splash.play .spline { animation: spline .6s cubic-bezier(.2, .8, .2, 1) 1.3s forwards; }
+@keyframes spline { to { transform: scaleX(1); } }
+#splash .sppre { font-family: var(--font-display); font-size: clamp(14px, 3.4vw, 20px); letter-spacing: .5em; text-transform: lowercase; color: #b0a591; opacity: 0; margin-right: -.5em; }
+#splash.play .sppre { animation: sppre .5s ease 1.8s forwards; }
+@keyframes sppre { to { opacity: 1; } }
+#splash.play .spwrap { animation: spglitch .32s steps(1, end) 2.6s, spout .35s ease 2.85s forwards; }
+@keyframes spglitch { 0% { transform: translate(3px, -1px) skewX(-8deg); filter: drop-shadow(-4px 0 0 rgba(255, 0, 40, .8)) drop-shadow(4px 0 0 rgba(0, 220, 255, .6)); }
+  30% { transform: translate(-5px, 2px); filter: drop-shadow(5px 0 0 rgba(255, 0, 40, .8)); } 55% { transform: translate(2px, 0) scaleY(1.06); filter: none; } 75% { transform: translate(-2px, -2px) skewX(6deg); filter: drop-shadow(-3px 0 0 rgba(0, 220, 255, .7)); } 100% { transform: none; filter: none; } }
+@keyframes spout { to { opacity: 0; transform: scale(1.04); } }
+#splash .spglow { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 45% at 50% 50%, rgba(150, 62, 22, .35), rgba(40, 14, 10, .15) 45%, transparent 75%); opacity: 0; }
+#splash.play .spglow { animation: spglow 3s ease forwards; }
+@keyframes spglow { 0% { opacity: 0; } 25% { opacity: 1; } 40% { opacity: .55; } 48% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+#splash .spgrain { position: absolute; inset: -50%; pointer-events: none; opacity: .09; mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+#splash.play .spgrain { animation: spgrain .4s steps(4) infinite; }
+@keyframes spgrain { 0% { transform: translate(0, 0); } 25% { transform: translate(-8%, 4%); } 50% { transform: translate(5%, -6%); } 75% { transform: translate(-3%, 7%); } 100% { transform: translate(0, 0); } }
+@media (prefers-reduced-motion: reduce) { #splash.play .sp span, #splash.play .spline, #splash.play .sppre { animation: none; opacity: 1; transform: none; } #splash.play .spwrap { animation: spout .35s ease 2.85s forwards; } #splash.play .spgrain { animation: none; } }
 #loading .lstudio { display: none; }
 
 /* ================= home screen (v2): full picture, the name, Start; then the menu centred over it ================= */
