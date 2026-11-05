@@ -87,16 +87,15 @@ const CREDITS = [
   ['', 'OJUJU CALABAR'],
   ['Game by', 'Muniac Studios'],
   ['Idea & studio founder', 'Ochem Munachi Micheal'],
-  ['Development & engineering', 'A. Klaus'],
+  ['Development & engineering', ['Ochem Munachi Micheal', 'Victor A. Klaus']],
   ['Story & design', 'Amuro Ayomiposi Daniel'],
   ['Project management', 'Taiye Hikmah Ayomide'],
-  ['Quality testing lead', 'Gbar-Wokwe Tokossi D’ Truth'],
+  ['Quality testing lead', 'Gbar-Wokwe Yokossi D’Truth'],
   ['Character voices', [
     ['Amuro Ayomiposi', 'Tobenna Oluwaseun “Tobi” Adeleke · Chief Olumide Adeleke (Papa) · Small Tobi'],
     ['Willie David Enobang', 'Effiong Etim · Ojuju Calabar'],
     ['Taiye Hikmah Ayomide', 'Adaeze Adeleke (Mama)']]],
   ['Sound effects', ['Amuro Ayomiposi', 'Kenney (kenney.nl)', 'Mixkit (mixkit.co)', 'YouTube']],
-  ['AI models', [['Claude', 'Engineering'], ['Gemini', 'Image generation']]],
   ['', 'Thanks for playing our game.'],
   ['', 'Remember, Ojuju is watching =)']
 ];
