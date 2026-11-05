@@ -108,10 +108,28 @@ function rollCredits(done) {
   document.body.appendChild(el);
   const roll = $('.croll', el);
   const lines = CREDITS.reduce((k, [, n]) => k + 1 + (Array.isArray(n) ? n.length : 1), 0);
-  roll.style.setProperty('--dur', Math.max(18, lines * 1.7) + 's');   // long enough to read every name
-  let over = false;
-  const end = () => { if (over) return; over = true; el.classList.add('out'); setTimeout(() => { el.remove(); done && done(); }, 600); };
-  roll.addEventListener('animationend', () => setTimeout(end, 1200));
+  const dur = Math.max(18, lines * 1.7);   // seconds to drift through it all: long enough to read every name
+  /* The credits drift up by themselves, but they are a real scrolling list: drag or wheel them at any speed.
+     Touching them pauses the drift; it picks up again a moment after you let go. The end, reached either way, finishes. */
+  let over = false, raf = 0, last = 0, held = false, idleUntil = 0, endT = 0, pos = 0;
+  const end = () => { if (over) return; over = true; cancelAnimationFrame(raf); el.classList.add('out'); setTimeout(() => { el.remove(); done && done(); }, 600); };
+  const max = () => el.scrollHeight - el.clientHeight;
+  const speed = () => max() / dur;   // pixels a second
+  const tick = now => {
+    if (over) return;
+    const dt = last ? Math.min(.1, (now - last) / 1000) : 0; last = now;
+    if (!held && now > idleUntil) { pos = Math.min(max(), (Math.abs(pos - el.scrollTop) > 2 ? el.scrollTop : pos) + speed() * dt); el.scrollTop = pos; }
+    else pos = el.scrollTop;
+    if (el.scrollTop >= max() - 2) { if (!endT) endT = now + 2200; else if (now > endT && !held) return end(); } else endT = 0;
+    raf = requestAnimationFrame(tick);
+  };
+  const touch = () => { idleUntil = performance.now() + 2500; };
+  el.addEventListener('pointerdown', () => { held = true; touch(); });
+  window.addEventListener('pointerup', () => { held = false; touch(); });
+  el.addEventListener('wheel', touch, { passive: true });
+  el.addEventListener('touchmove', touch, { passive: true });
+  el.addEventListener('keydown', touch);
+  raf = requestAnimationFrame(tick);
   $('.skip', el).onclick = e => { e.stopPropagation(); end(); };
   try { Snd.init(); Snd.music(true); } catch (e) { /* no music */ }
 }
