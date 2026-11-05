@@ -82,24 +82,33 @@ function viewGallery(i, back) {
   };
 }
 /* ---- end credits ---- */
-/* Each line is [role, name]. Leave the role empty for a line on its own. Amuro sends the final list. */
+/* Each entry is [role, names]: names is one name, or a list; a list item can be [name, what they did]. */
 const CREDITS = [
   ['', 'OJUJU CALABAR'],
-  ['A game by', 'Muniac Studios'],
-  ['Game developer', 'Muniac'],
-  ['Story and comic panel designer', 'Amuro'],
-  // voice actors go here when Amuro sends the names, e.g. ['Tobi', 'Name'],
-  ['Sound effects', 'Kenney (kenney.nl) and Mixkit (mixkit.co)'],
-  ['', 'Made in Nigeria.'],
-  ['', 'Thank you for going back into the house.']
+  ['Game by', 'Muniac Studios'],
+  ['Idea & studio founder', 'Ochem Munachi Micheal'],
+  ['Development & engineering', 'A. Klaus'],
+  ['Story & design', 'Amuro Ayomiposi Daniel'],
+  ['Project management', 'Taiye Hikmah Ayomide'],
+  ['Quality testing lead', 'Gbar-Wokwe Tokossi D’ Truth'],
+  ['Character voices', [
+    ['Amuro Ayomiposi', 'Tobenna Oluwaseun “Tobi” Adeleke · Chief Olumide Adeleke (Papa) · Small Tobi'],
+    ['Willie David Enobang', 'Effiong Etim · Ojuju Calabar'],
+    ['Taiye Hikmah Ayomide', 'Adaeze Adeleke (Mama)']]],
+  ['Sound effects', ['Amuro Ayomiposi', 'Kenney (kenney.nl)', 'Mixkit (mixkit.co)', 'YouTube']],
+  ['AI models', [['Claude', 'Engineering'], ['Gemini', 'Image generation']]],
+  ['', 'Thanks for playing our game.'],
+  ['', 'Remember, Ojuju is watching =)']
 ];
 function rollCredits(done) {
   const el = document.createElement('div'); el.id = 'credits';
+  const who = n => (Array.isArray(n) ? n : [n]).map(x => Array.isArray(x) ? `<b>${esc(x[0])}</b><em>${esc(x[1])}</em>` : `<b>${esc(x)}</b>`).join('');
   el.innerHTML = `<button class="btn skip" type="button">Skip</button><div class="croll">${CREDITS.map(([r, n], i) =>
-    i === 0 ? `<h1>${esc(n)}</h1>` : `<p>${r ? `<span>${esc(r)}</span>` : ''}<b>${esc(n)}</b></p>`).join('')}</div>`;
+    i === 0 ? `<h1>${esc(n)}</h1>` : `<p${r ? '' : ' class="cend"'}>${r ? `<span>${esc(r)}</span>` : ''}${who(n)}</p>`).join('')}</div>`;
   document.body.appendChild(el);
   const roll = $('.croll', el);
-  roll.style.setProperty('--dur', Math.max(18, CREDITS.length * 3.2) + 's');
+  const lines = CREDITS.reduce((k, [, n]) => k + 1 + (Array.isArray(n) ? n.length : 1), 0);
+  roll.style.setProperty('--dur', Math.max(18, lines * 1.7) + 's');   // long enough to read every name
   let over = false;
   const end = () => { if (over) return; over = true; el.classList.add('out'); setTimeout(() => { el.remove(); done && done(); }, 600); };
   roll.addEventListener('animationend', () => setTimeout(end, 1200));
