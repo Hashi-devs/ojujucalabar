@@ -1676,6 +1676,15 @@ function preloadTextures(onProgress) {
     step();
   });
 }
+/* web builds: sounds and pictures are separate files; fetch them quietly in the background once the game is open (comic first, it comes next) */
+function prefetchAssets() {
+  const urls = [], add = v => (Array.isArray(v) ? v : [v]).forEach(u => { if (typeof u === 'string' && !u.startsWith('data:')) urls.push(u); });
+  [COMIC_IMG, SFX, VOICES, GALLERY_IMG].forEach(d => d && Object.values(d).forEach(add));
+  if (!urls.length || !window.fetch) return;
+  let i = 0;
+  const next = () => { if (i >= urls.length) return; const u = urls[i++]; fetch(u).catch(() => 0).then(() => setTimeout(next, 30)); };
+  for (let n = 0; n < 3; n++) next();
+}
 function bootLoading() {
   const art = $('.lart', loadEl);
   art.innerHTML = LOAD_IMG ? `<img src="${LOAD_IMG}" alt="">` : titleArt();
@@ -1684,14 +1693,14 @@ function bootLoading() {
   const bar = $('.lbar i', loadEl), btn = $('.btn', loadEl);
   // the opening: "Muniac Studios" alone on black for three seconds, then the picture; Tap to enter comes two seconds after that
   const sp = $('#splash'), SPLASH_MS = 3200, AFTER_MS = 2000;
-  const shownAt = Date.now() + (sp ? SPLASH_MS : 0);
-  if (sp) {   // split the name into letters, each flickering on at its own moment
+  const began = window.__splashAt || Date.now(), shownAt = began + (sp ? SPLASH_MS : 0);   // the page started the opening itself, as soon as it arrived
+  if (sp && !sp.classList.contains('play')) {   // split the name into letters, each flickering on at its own moment
     const nm = $('.sp', sp);
     if (nm && !nm.dataset.split) { nm.dataset.split = '1'; nm.innerHTML = [...nm.textContent].map((ch, k) => ch === ' ' ? ' ' : `<span style="--d:${(.35 + Math.random() * .9 + k * .015).toFixed(2)}s">${ch}</span>`).join(''); }
     sp.classList.add('play');
   }
-  if (sp) setTimeout(() => { sp.classList.add('off'); setTimeout(() => sp.classList.add('gone'), 650); }, SPLASH_MS);
-  const ready = () => { bar.style.width = '100%'; setTimeout(() => hideLoading(), Math.max(400, shownAt + AFTER_MS - Date.now())); };   // no Tap to enter here: the home screen has Start
+  if (sp) setTimeout(() => { sp.classList.add('off'); setTimeout(() => sp.classList.add('gone'), 650); }, Math.max(0, shownAt - Date.now()));
+  const ready = () => { bar.style.width = '100%'; setTimeout(prefetchAssets, 300); setTimeout(() => hideLoading(), Math.max(400, shownAt + AFTER_MS - Date.now())); };   // no Tap to enter here: the home screen has Start
   btn.onclick = () => { Snd.init(); goLandscape(); hideLoading(); if (!G.started) Snd.music(true); };
   if (!glOK) { ready(); return; }
   const t0 = Date.now(), wait = ms => new Promise(r => setTimeout(r, ms));
@@ -1700,7 +1709,9 @@ function bootLoading() {
     wait(1800)
   ]);
   bar.style.width = '8%';
-  fonts.then(() => preloadTextures(p => { bar.style.width = (10 + p * 86) + '%'; })).then(() => wait(Math.max(0, 1800 - (Date.now() - t0)))).then(ready);
+  // textures keep warming up in the background; a slow phone is not held on this screen for them (any not ready yet are drawn when first needed)
+  const warm = fonts.then(() => preloadTextures(p => { bar.style.width = (10 + p * 86) + '%'; }));
+  Promise.race([warm, wait(Math.max(0, shownAt + AFTER_MS + 1200 - Date.now()))]).then(() => wait(Math.max(0, 1800 - (Date.now() - t0)))).then(ready);
 }
 
 /* ---------- boot ---------- */

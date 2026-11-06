@@ -90,9 +90,9 @@ const Snd = (() => {
   let mBus = null, mTimer = 0, mNext = 0, mStep = 0;
   function musicBus() {
     if (mBus) return mBus;
-    mBus = ctx.createGain(); mBus.gain.value = 0; mBus.connect(master);
+    mBus = ctx.createGain(); mBus.gain.value = 0; mBus.connect(bedBus());
     const d = ctx.createDelay(1); d.delayTime.value = .33; const fb = ctx.createGain(); fb.gain.value = .32; const wet = ctx.createGain(); wet.gain.value = .28;
-    mBus.connect(d); d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(master);
+    mBus.connect(d); d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(bedBus());
     return mBus;
   }
   // a slow, minor, palm-wine highlife figure: Am, Dm, E, Am, with a walking bass
@@ -191,6 +191,28 @@ const Snd = (() => {
 
   /* ---------- recorded voices, made ghostly ---------- */
   const vcache = {};
+  /* a sound is either embedded (data: URI, single-file builds) or a small file next to the page (web builds) */
+  function bytesOf(uri) {
+    if (uri.startsWith('data:')) {
+      const bin = atob(uri.slice(uri.indexOf(',') + 1)), b = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+      return Promise.resolve(b.buffer);
+    }
+    return fetch(uri).then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); });
+  }
+  /* voices sit on their own louder bus, through a limiter, and the music and loops dip while someone speaks */
+  let vBus = null, bed = null, speaking = 0;
+  function voiceBus() {
+    if (vBus) return vBus;
+    const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -12; lim.knee.value = 6; lim.ratio.value = 8; lim.attack.value = .003; lim.release.value = .2;
+    vBus = ctx.createGain(); vBus.gain.value = 2.2; vBus.connect(lim); lim.connect(master);
+    return vBus;
+  }
+  function bedBus() { if (!bed) { bed = ctx.createGain(); bed.gain.value = 1; bed.connect(master); } return bed; }
+  function duck(on) {
+    speaking = Math.max(0, speaking + (on ? 1 : -1));
+    if (bed) bed.gain.setTargetAtTime(speaking ? .35 : 1, ctx.currentTime, speaking ? .08 : .5);
+  }
   let verb = null;
   function reverb() {
     if (verb) return verb;
@@ -201,9 +223,8 @@ const Snd = (() => {
   }
   function decode(uri) {
     if (vcache[uri]) return vcache[uri];
-    const b64 = uri.slice(uri.indexOf(',') + 1), bin = atob(b64), buf = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-    vcache[uri] = new Promise((res, rej) => ctx.decodeAudioData(buf.buffer, res, rej));
+    vcache[uri] = bytesOf(uri).then(b => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej)));
+    vcache[uri].catch(() => { delete vcache[uri]; });
     return vcache[uri];
   }
   // who: 'ojuju' (deep, doubled, from behind), 'mama' (soft, echoing), 'kid' (small Tobi, a memory), 'plain' (Tobi himself)
@@ -223,9 +244,9 @@ const Snd = (() => {
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = P.lp;
     const dry = ctx.createGain(); dry.gain.value = P.dry; const wet = ctx.createGain(); wet.gain.value = P.wet;
     hp.connect(lp); const out = pan || lp; if (pan) { lp.connect(pan); pan.pan.setValueAtTime((Math.random() < .5 ? -1 : 1) * P.pan, t); pan.pan.linearRampToValueAtTime((Math.random() - .5) * .4, t + ab.duration / P.rate); }
-    out.connect(dry); dry.connect(master); out.connect(wet); wet.connect(reverb());
+    out.connect(dry); dry.connect(voiceBus()); out.connect(wet); wet.connect(reverb());
     const src = ctx.createBufferSource(); src.buffer = ab; src.playbackRate.value = P.rate; src.connect(hp); src.start(t);
-    const rec = { srcs: [src], gains: [dry, wet] }; VOX.push(rec); src.onended = () => { const i = VOX.indexOf(rec); if (i >= 0) VOX.splice(i, 1); };
+    const rec = { srcs: [src], gains: [dry, wet] }; VOX.push(rec); duck(true); src.onended = () => { duck(false); const i = VOX.indexOf(rec); if (i >= 0) VOX.splice(i, 1); };
     if (P.under) { // a second, deeper copy underneath: two throats, one voice
       const s2 = ctx.createBufferSource(); s2.buffer = ab; s2.playbackRate.value = P.rate * .74; const g2 = ctx.createGain(); g2.gain.value = P.under;
       s2.connect(g2); g2.connect(hp); s2.start(t); rec.srcs.push(s2);
@@ -296,11 +317,7 @@ const Snd = (() => {
     Object.keys(SFX).forEach(k => {
       SB[k] = [];
       SFX[k].forEach(u => {
-        try {
-          const bin = atob(u.slice(u.indexOf(',') + 1)), b = new Uint8Array(bin.length);
-          for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
-          ctx.decodeAudioData(b.buffer, buf => SB[k].push(buf), () => {});
-        } catch (e) { /* this one stays synth */ }
+        bytesOf(u).then(b => ctx.decodeAudioData(b, buf => SB[k].push(buf), () => {})).catch(() => { /* this one stays synth */ });
       });
     });
   }
@@ -397,7 +414,7 @@ const Snd = (() => {
     const L = SB[k];
     if (!L || !L.length) { clearTimeout(LOOPT[k]); LOOPT[k] = setTimeout(() => loopOn(k, vol, fade), 700); return; }   // still decoding
     const src = ctx.createBufferSource(); src.buffer = L[0]; src.loop = true;
-    const g = ctx.createGain(); g.gain.value = .0001; src.connect(g); g.connect(master); src.start();
+    const g = ctx.createGain(); g.gain.value = .0001; src.connect(g); g.connect(bedBus()); src.start();
     g.gain.setTargetAtTime(vol, ctx.currentTime, fade / 3);
     LOOP[k] = { src, g };
   }
