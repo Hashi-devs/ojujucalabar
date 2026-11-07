@@ -1,6 +1,6 @@
 /* ================= SOUND (synthesised, no files) ================= */
 const Snd = (() => {
-  let ctx = null, master = null, noise = null, outNode = null;
+  let ctx = null, master = null, top = null, noise = null, outNode = null;   // every sound goes to master; master and the voices meet at top
   let muted = !!store.get('hm3_mute');
 
   function init() {
@@ -9,9 +9,8 @@ const Snd = (() => {
     if (!AC) return;
     try {
       ctx = new AC();
-      master = ctx.createGain();
-      master.gain.value = muted ? 0 : 0.9;
-      master.connect(ctx.destination);
+      top = ctx.createGain(); top.gain.value = muted ? 0 : 0.9; top.connect(ctx.destination);
+      master = ctx.createGain(); master.gain.value = 1; master.connect(top);   // everything except the voices: dips while someone speaks
       const len = ctx.sampleRate * 2;
       noise = ctx.createBuffer(1, len, ctx.sampleRate);
       const d = noise.getChannelData(0);
@@ -201,24 +200,24 @@ const Snd = (() => {
     return fetch(uri).then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); });
   }
   /* voices sit on their own louder bus, through a limiter, and the music and loops dip while someone speaks */
-  let vBus = null, bed = null, speaking = 0;
+  let vBus = null, speaking = 0;
   function voiceBus() {
     if (vBus) return vBus;
     const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -12; lim.knee.value = 6; lim.ratio.value = 8; lim.attack.value = .003; lim.release.value = .2;
-    vBus = ctx.createGain(); vBus.gain.value = 2.2; vBus.connect(lim); lim.connect(master);
+    vBus = ctx.createGain(); vBus.gain.value = 2.2; vBus.connect(lim); lim.connect(top);
     return vBus;
   }
-  function bedBus() { if (!bed) { bed = ctx.createGain(); bed.gain.value = 1; bed.connect(master); } return bed; }
+  function bedBus() { return master; }
   function duck(on) {
     speaking = Math.max(0, speaking + (on ? 1 : -1));
-    if (bed) bed.gain.setTargetAtTime(speaking ? .35 : 1, ctx.currentTime, speaking ? .08 : .5);
+    if (master) master.gain.setTargetAtTime(speaking ? .3 : 1, ctx.currentTime, speaking ? .08 : .6);   // music, rain, engines, crickets: all of it steps back for the voice
   }
   let verb = null;
   function reverb() {
     if (verb) return verb;
     const len = Math.floor(ctx.sampleRate * 2.6), ir = ctx.createBuffer(2, len, ctx.sampleRate);
     for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
-    verb = ctx.createConvolver(); verb.buffer = ir; verb.connect(master);
+    verb = ctx.createConvolver(); verb.buffer = ir; verb.connect(top);
     return verb;
   }
   function decode(uri) {
@@ -336,9 +335,9 @@ const Snd = (() => {
     get muted() { return muted; },
     setMuted(m) {
       muted = m; store.set('hm3_mute', m);
-      if (master) master.gain.setTargetAtTime(m ? 0 : 0.9, ctx.currentTime, 0.05);
+      if (top) top.gain.setTargetAtTime(m ? 0 : 0.9, ctx.currentTime, 0.05);
     },
-    adMute(on) { if (master) master.gain.setTargetAtTime(on || muted ? 0 : 0.9, ctx.currentTime, 0.05); },
+    adMute(on) { if (top) top.gain.setTargetAtTime(on || muted ? 0 : 0.9, ctx.currentTime, 0.05); },
     suspend() { if (ctx && ctx.state === 'running') ctx.suspend(); },
     resume() { if (ctx && ctx.state === 'suspended') ctx.resume(); },
     tick() { tone(520, 0.05, 'square', 0.04); },
