@@ -1533,7 +1533,7 @@ function showTitle() {
     <div class="seg" id="tLang"><button data-lang="en" class="${G.lang === 'en' ? 'on' : ''}">English</button><button data-lang="pcm" class="${G.lang === 'pcm' ? 'on' : ''}">Pidgin</button></div>
     <div class="lbl">Scare level</div>
     <div class="seg" id="tMode"><button data-m="haunted" class="${G.mode === 'haunted' ? 'on' : ''}">Haunted</button><button data-m="gentle" class="${G.mode === 'gentle' ? 'on' : ''}">Gentle</button></div>
-    <p class="tag" style="font-size:13px;margin:0">Gentle turns off jump scares and the dread meter. Headphones make it worse.</p><p class="ver">Version ${VERSION_TAG}</p></div>`;
+    <p class="tag" style="font-size:13px;margin:0">Gentle turns off jump scares and the dread meter. Only Haunted runs go on the leaderboard. Headphones make it worse.</p><p class="ver">Version ${VERSION_TAG}</p></div>`;
   // with no Tap to enter on the loading screen, the first touch anywhere here wakes the sound and the music
   t.addEventListener('pointerdown', () => { Snd.init(); Snd.music(true); }, { once: true });
   $('#tLang').onclick = e => { const b = e.target.closest('[data-lang]'); if (b && b.dataset.lang !== G.lang) { setLang(b.dataset.lang); showTitle(); } };
@@ -1599,7 +1599,14 @@ function openMenu() {
   let armed = false;
   panel.onclick = e => {
     const m = e.target.closest('[data-m]');
-    if (m) { setMode(m.dataset.m); $$('#mMode button').forEach(x => x.classList.toggle('on', x === m)); return; }
+    if (m) {
+      if (m.dataset.m === G.mode) return;   // already on it: nothing changes
+      if (m.dataset.m === 'gentle' && G.run && G.run.ranked && !m.dataset.sure) {   // a stray tap must not cost a leaderboard run
+        m.dataset.sure = '1'; m.textContent = 'Tap again: this run leaves the leaderboard'; m.classList.add('danger'); return;
+      }
+      setMode(m.dataset.m); $$('#mMode button').forEach(x => { x.classList.toggle('on', x === m); x.classList.remove('danger'); delete x.dataset.sure; x.textContent = x.dataset.m === 'gentle' ? 'Gentle' : 'Haunted'; });
+      return;
+    }
     const lg = e.target.closest('[data-lang]');
     if (lg) { if (lg.dataset.lang !== G.lang) { setLang(lg.dataset.lang); closeModal(); openMenu(); } return; }
     const gq = e.target.closest('[data-g]');

@@ -78,8 +78,11 @@ const lbEligible = () => !!(G.run && G.run.ranked && G.mode === 'haunted');
 /* ---- the end screen ---- */
 function lbResultsHtml() {
   if (G.chapterRun != null) return `<div class="lbbox"><p class="lbmsg">Chapter runs don’t count for the leaderboard. Pages found in any run: ${pagesEver().length} of ${PAGES.length}.</p><button class="btn" data-lb="view">See the leaderboard</button></div>`;
-  if (G.mode !== 'haunted') return `<div class="lbbox"><p class="lbmsg">The speedrun leaderboard is for Haunted runs only.</p><button class="btn" data-lb="view">See the leaderboard</button></div>`;
-  if (!lbEligible() || !G.run.id) return `<div class="lbbox"><p class="lbmsg">${G.run && !G.run.ranked ? 'This run left Haunted mode, so it can’t go on the leaderboard.' : 'This run started without internet, so it can’t go on the leaderboard. Start a new game while online to race.'}</p><button class="btn" data-lb="view">See the leaderboard</button></div>`;
+  // say exactly why a run can't be posted, so a player is never left guessing
+  const why = !G.run ? (G.mode !== 'haunted' ? 'This run was played on Gentle. Only Haunted runs go on the leaderboard: pick Haunted on the title screen before you start.' : 'This run started before the leaderboard could time it (an older save, or the game was opened offline). Start a new game while online to race.')
+    : !G.run.ranked || G.mode !== 'haunted' ? 'The scare level was switched to Gentle during this run, so it can’t go on the leaderboard. Keep it on Haunted from start to finish.'
+    : !G.run.id ? 'The leaderboard couldn’t be reached when this run started, so it wasn’t timed. Start a new game with internet on to race.' : '';
+  if (why) return `<div class="lbbox"><p class="lbmsg">${why}</p><button class="btn" data-lb="view">See the leaderboard</button></div>`;
   if (G.run.posted) return `<div class="lbbox"><p class="lbmsg ok">${esc(G.run.posted)}</p><button class="btn" data-lb="view">See the leaderboard</button></div>`;
   return `<div class="lbbox"><div class="lbt">Speedrun leaderboard</div>
     <p class="lbmsg">Your time: <b>${fmtRun(runMs())}</b>. Put it on the board.</p>
