@@ -480,7 +480,7 @@ function frameStep(dt) {
   if (!glOK || !Rm || document.hidden || R3.lost || !G.started) return;
   for (let i = fx.length - 1; i >= 0; i--) if (fx[i](dt) === false) fx.splice(i, 1);
   const cam = G.cam, sc = Rm.sc;
-  if (canAct()) { move(dt); checkZones(); watchPerf(dt); checkTree(); }
+  if (canAct()) { move(dt); checkZones(); checkExitWalk(); watchPerf(dt); checkTree(); }
   const pp = sc.player.p || (sc.player.p = [0, 0, 0]); pp[0] = cam.pos[0] + Math.sin(cam.yaw) * .25; pp[1] = 1.5; pp[2] = cam.pos[2] - Math.cos(cam.yaw) * .25;
   R3.update(sc, cam, dt);
   R3.render(sc, cam);
@@ -674,6 +674,25 @@ const NEEDED = {
 };
 function missingItems() {
   return (NEEDED[ROOMS[G.room].key] || []).filter(n => !has(n.id) && G.dropped !== n.id);
+}
+/* an exit you've already opened: walk up to it and you go through (the usual "pages left" and "you'll need this" checks still ask first) */
+const EXIT_OPEN = { door: f => f.doorOpen, ndoor: f => f.doorOpen, kdoor: f => f.doorOpen, cdoor: f => f.padOpen && f.keyUsed, chdoor: f => f.doorOpen, trap: f => f.trapOpen, atticwin: f => f.windowOpen && f.barsOpen };
+let exitAt = null;   // { room, id, x, z } of this room's open exit
+let exitAskedAt = 0;
+function checkExitWalk() {
+  if (!Rm || G.f.left || G.f.asking || G.ending) return;
+  const now = performance.now();
+  if (!exitAt || exitAt.room !== G.token || (!exitAt.id && now - exitAt.at > 1000)) {   // look again now and then: some exits only appear later
+    exitAt = { room: G.token, id: null, at: now };
+    const ns = Rm.sc.pick.filter(n => EXIT_OPEN[n._hid]);   // a door's parts take their name from the door they belong to
+    if (ns.length) { const id = ns[0]._hid, mine = ns.filter(n => n._hid === id); Object.assign(exitAt, { id, x: mine.reduce((a, n) => a + n.world[12], 0) / mine.length, z: mine.reduce((a, n) => a + n.world[14], 0) / mine.length }); }
+  }
+  if (!exitAt.id || !EXIT_OPEN[exitAt.id](G.f)) return;
+  const p = G.cam.pos, d = Math.hypot(p[0] - exitAt.x, p[2] - exitAt.z);
+  const closer = exitAt.pd != null && d < exitAt.pd - .0005; exitAt.pd = d;
+  // walking toward an exit you have opened takes you through; after a "Before you go" it waits until you step back or a few seconds pass
+  if (d > 1.5 || now - (exitAskedAt) > 3500) G.f.exitArmed = true;
+  if (d < 1.2 && closer && G.f.exitArmed && !modalOpen()) { G.f.exitArmed = false; exitAskedAt = now; goNext(); }
 }
 function goNext() {
   if (G.f.left || G.f.asking || G.over) return;

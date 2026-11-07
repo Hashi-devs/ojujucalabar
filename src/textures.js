@@ -148,6 +148,7 @@ const TP = {};
     return clampTex(c);
   };
   TP.noteMirror = paperText(['FIRST THE BONE', 'THEN THE BLOOD', 'THEN THE SEA', 'LAST THE GRAVE'], { mirror: true, size: 21, lh: 40 });
+  TP._noteMirrorAt = w => paperText(['FIRST THE ' + w[0], 'THEN THE ' + w[1], 'THEN THE ' + w[2], 'LAST THE ' + w[3]], { mirror: true, size: 21, lh: 40 });
   TP.noteScrap = paperText(['THE DEAD READ', 'LEFT TO RIGHT.'], { size: 24, lh: 44, ink: '#4a3a1a' });
   TP.noteClock = paperText(['The clock stopped', 'when she fell.', 'The drawer', 'remembers the hour.'], { size: 20, lh: 36, ink: '#4a3a1a' });
 

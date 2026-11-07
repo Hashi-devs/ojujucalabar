@@ -78,7 +78,7 @@ function photoPuzzle(o) {
 const VOICES_REC = [
   { who: 'effiong', pitch: 150, line: 'Ah, my small driver! Hold my head well o, make you no fall!' },
   { who: 'olumide', pitch: 92, line: 'What is mine stays mine. Nobody leaves this house.' },
-  { who: 'adaeze', pitch: 215, line: 'Kpakpando, ọnwa, anyanwụ… sleep now, nwa m.' }
+  { who: 'adaeze', pitch: 215, get line() { const W = { star: 'kpakpando', moon: 'ọnwa', sun: 'anyanwụ' }, w = PZ().box.map(k => W[k]).join(', '); return w[0].toUpperCase() + w.slice(1) + '… sleep now, nwa m.'; } }
 ];
 function voicePuzzle(o) {
   const put = {}; // person -> voice index

@@ -41,6 +41,9 @@ function startChapter(i) {
   G.inv = c.inv.slice(); G.journal = []; G.pages = []; G.cowries = []; G.hints = 0; G.scares = 0; G.hintLv = {};
   G.t0 = Date.now(); G.f = {}; G.snap = null; G.ending = false; G.lives = LIVES_MAX; G.chap = null; G.flash = [];
   G.puz = rollPuzzles(); G.run = null; G.finalMs = 0; G.chapterRun = i;
+  // this run's answers are new, so what Tobi learned in the rooms you skip is already written in the journal
+  const ni = ROOMS.findIndex(r => r.key === 'nursery');
+  if (c.room > ni) addJournal('lullaby', 'The music box', 'It played three symbols in order:\n' + listWords(PZ().box) + '.');
   $('#title').classList.add('off'); document.body.classList.remove('lbtitle');
   withLoading(() => { startPlay(); enterRoom(c.room); }, 900);
 }

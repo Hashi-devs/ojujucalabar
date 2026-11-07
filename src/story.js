@@ -26,7 +26,9 @@ const PAGES = [
   { id: 'gown', room: 'nursery', obj: 'wardrobe', where: 'the wardrobe', title: 'A naming-day outfit',
     text: 'Under old newspaper: a tiny white lace outfit, the size of your two hands. A card is pinned to it.\n\n“Tobenna Oluwaseun Adeleke. Named on his eighth day, 10 March 1971.\nTobenna: praise God. Oluwaseun: God has done it.\nTwo names, because he has two peoples. — A.”' },
   { id: 'lullaby', room: 'nursery', obj: 'crib', where: 'the cot', title: 'Folded into the mattress',
-    text: 'Mama’s lullaby, written out in biro, Igbo and English side by side. You know every word, and you do not know how.\n\n“Kpakpando, because you are small and bright.\nỌnwa, because you are quiet.\nAnyanwụ, because one day you will go, and I must let you.\n\nNwa m, rahụ ụra. Mama nọ ebe a.”' },
+    // the verses follow this run's music box, so the page never gives a different order from the box
+    get text() { const V = { star: 'Kpakpando, because you are small and bright.', moon: 'Ọnwa, because you are quiet.', sun: 'Anyanwụ, because one day you will go, and I must let you.' };
+      return 'Mama’s lullaby, written out in biro, Igbo and English side by side. You know every word, and you do not know how.\n\n“' + PZ().box.map(k => V[k]).join('\n') + '\n\nNwa m, rahụ ụra. Mama nọ ebe a.”'; } },
 
   { id: 'burnt', room: 'kitchen', obj: 'range', where: 'the gas cooker', title: 'A burnt letter',
     text: 'Half of it survived the flame. A careful, uneven hand.\n\n“…Madam, I am not a man for writing. I am begging you, take Tobi and go to your people in Enugu for some time. Do not tell Oga I wrote this. The papers in his office are not good papers.\n\nIf anything happens to me, my people are in Ikot Ekpene. Tell them where I am.\n\n— Effiong”\n\nShe burned it. She must have been afraid he would find it.' },
@@ -72,7 +74,7 @@ const LOAD_QUOTES = [
   'Every clock in the house stopped at 7:20.',
   'Whatever calls you, do not answer.',
   'Somebody upstairs is still walking in circles.',
-  'Star. Moon. Sun.',
+  'Three words in a lullaby, and the order matters.',
   'Go before dark.',
   'Where is my name?',
   'Some houses keep what they take.'

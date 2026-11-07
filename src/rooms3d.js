@@ -1,6 +1,8 @@
 /* ================= 3D ROOMS ================= */
 const PI = Math.PI;
 const ROOMS3D = {};
+// the note seen in the attic mirror shows this run's candle order
+const mirrorTex = () => { const w = PZ().candles.map(c => CANDLE_WORD[c]), n = 'noteMirror_' + w.join('_'); if (!TP[n]) TP[n] = TP._noteMirrorAt(w); return n; };
 const clockTex = () => { const [h, m] = PZ().clock, n = 'clockFace' + h + '_' + m; if (!TP[n]) TP[n] = TP.clockFaceAt(h, m); return n; };
 const WA = { t: 'woodA', s: 14 }, WB = { t: 'woodB', s: 10 }, BR = { c: '#b8923a', s: 40 }, IRON = { c: '#2a2c31', s: 30 };
 
@@ -648,7 +650,7 @@ ROOMS3D.attic = B => {
     return hd;
   });
   B.hit(ds, 0, 1.3, 0, 3.4, .8, .6);
-  B.pln(null, 0, 2.05, 2.96, .9, .9, { t: 'noteMirror' }, PI); B.cyl(null, 0, 2.48, 2.94, .02, .02, '#8c1824', PI / 2);
+  B.pln(null, 0, 2.05, 2.96, .9, .9, { t: mirrorTex() }, PI); B.cyl(null, 0, 2.48, 2.94, .02, .02, '#8c1824', PI / 2);
   B.hit(null, 0, 2.05, 2.92, 1.0, 1.0, .2, 'mirrornote');
   B.glint(0, 2.05, 2.8);
   B.col(-1.9, 2.55, 1.9, 3);
