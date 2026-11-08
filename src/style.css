@@ -743,7 +743,14 @@ h2.smear { color: #ff8f8f; text-shadow: 0 0 18px rgba(200, 0, 0, .8), 2px 2px 0 
   .panel.radio .col .lbl { grid-column: 1 / -1; margin: 0; }
   .panel.radio .col .seg { grid-column: 1 / -1; }
   .panel.radio .col .btn.primary { grid-column: 1 / -1; }
+  .panel.radio .col .mfoot { grid-column: 1 / -1; }
 }
+/* the pause menu's last buttons, the version and the credit line: one centred block */
+.mfoot { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin-top: 4px; }
+.mfoot .btnrow { display: flex; gap: 8px; }
+.mfoot .btnrow .btn { flex: 1 1 0; min-width: 0; margin: 0; }
+.mfoot .ver { text-align: center; margin: 2px 0 0; }
+.rd-note.mcredit { text-align: center; margin-top: 10px; }
 
 .sharecard { display: block; width: 100%; max-width: 260px; margin: 6px auto 4px; border-radius: 6px; box-shadow: 0 8px 24px rgba(0, 0, 0, .6); -webkit-user-select: auto; user-select: auto; -webkit-touch-callout: default; }
 
@@ -1235,6 +1242,7 @@ body.lbtitle #modal { z-index: 70; }
 #title.v3 h1 { font-size: clamp(44px, 7vw, 76px); line-height: .92; text-align: left; color: #f6ead0; text-shadow: 0 4px 24px rgba(0, 0, 0, .85); }
 #title.v3 h1 br { display: inline; }
 #title.v3 .tag, #title.v3 .lbl, #title.v3 .star { text-shadow: 0 1px 8px #000; }
+#title.v3 .menu > * { flex-shrink: 0; }   /* nothing in the menu may be squashed flat on a short screen; it scrolls instead */
 #title.v3 .btnrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 #title.v3 .btnrow .btn { min-width: 0; padding-left: 4px; padding-right: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #title.v3 .ver { text-align: left; }

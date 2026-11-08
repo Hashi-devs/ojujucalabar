@@ -1608,13 +1608,13 @@ function openMenu() {
       <div class="seg" id="mLook">${['slow', 'normal', 'fast'].map(k => `<button data-l="${k}" class="${G.look === k ? 'on' : ''}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div>
       <div class="lbl" style="color:var(--bone-dim);font-size:13px">Speedrun timer</div>
       <div class="seg" id="mTimer"><button data-t="1" class="${store.get('oc_timer') ? 'on' : ''}">Show</button><button data-t="0" class="${store.get('oc_timer') ? '' : 'on'}">Hide</button></div>
-      <div class="btnrow"><button class="btn" data-a="board">Leaderboard</button><button class="btn" data-a="gallery">Gallery</button></div>
-      <button class="btn" data-a="restart">Restart this room</button>
-      <button class="btn" data-a="feedback">Send feedback</button>
-      <p class="ver">Version ${VERSION_TAG}</p>
-      <button class="btn" data-a="title">Save and go to title</button>
+      <div class="mfoot">
+        <div class="btnrow b3"><button class="btn" data-a="board">Leaderboard</button><button class="btn" data-a="gallery">Gallery</button><button class="btn" data-a="restart">Restart room</button></div>
+        <div class="btnrow"><button class="btn" data-a="feedback">Send feedback</button><button class="btn" data-a="title">Save and go to title</button></div>
+        <p class="ver">Version ${VERSION_TAG}</p>
+      </div>
     </div>
-    <p class="rd-note" style="margin-top:10px"><a href="privacy.html" target="_blank" rel="noopener" style="color:#f0c98a">Privacy</a> · A Muniac Studios game</p>`, { cls: 'radio' });
+    <p class="rd-note mcredit"><a href="privacy.html" target="_blank" rel="noopener" style="color:#f0c98a">Privacy</a> · A Muniac Studios game</p>`, { cls: 'radio' });
   let armed = false;
   panel.onclick = e => {
     const m = e.target.closest('[data-m]');
