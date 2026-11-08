@@ -44,11 +44,11 @@ if os.path.exists(fp):
 # Garet, for STUDIOS under the logo: drop any Garet file (Book/Regular) into assets/fonts and it's cut down to those letters and embedded
 import glob
 gsrc = sorted(glob.glob(os.path.join(ROOT, 'assets', 'fonts', 'Garet*.*')), key=lambda f: ('Book' not in f and 'Regular' not in f, f))
-gsrc = [f for f in gsrc if f.lower().endswith(('.ttf', '.otf', '.woff', '.woff2')) and '.sub.' not in f]
+gsrc = [f for f in gsrc if f.lower().endswith(('.ttf', '.otf', '.woff', '.woff2')) and '.sub.' not in f and '.web.' not in f]
 if gsrc:
-    from fontTools import subset as _fs
-    gout = os.path.join(ROOT, 'assets', 'fonts', 'Garet.sub.woff')
-    _fs.main([gsrc[0], '--text=STUDIOstudio', '--flavor=woff', '--output-file=' + gout])
+    from fontTools.ttLib import TTFont as _TT   # packaged whole as a web font (Spacetype's licence allows web packages, not edits to the font)
+    gout = os.path.join(ROOT, 'assets', 'fonts', 'Garet.web.woff')
+    _f = _TT(gsrc[0]); _f.flavor = 'woff'; _f.save(gout)
     font_css += '@font-face { font-family: "Garet"; font-style: normal; font-weight: 400; font-display: block; src: url(data:font/woff;base64,%s) format("woff"); }\n' % base64.b64encode(open(gout, 'rb').read()).decode()
 else:
     font_css += '@font-face { font-family: "Garet"; font-style: normal; font-weight: 400; src: local("Garet Book"), local("Garet-Book"), local("Garet"); }\n'
@@ -86,7 +86,7 @@ if os.path.isdir(vdir):
             print('voice line embedded:', fn, len(voices[vid]) // 1024, 'KB')
         except Exception as e:
             print('could not convert', fn, e)
-VERSION = '4.6.4'
+VERSION = '4.6.5'
 # drawings dropped into a folder by name replace the placeholder of that name:
 #   assets/comic/<panel art id>.png|jpg|jpeg|webp  -> comic panels
 #   assets/gallery/<g1..g7>.png|jpg|jpeg|webp      -> gallery pictures
