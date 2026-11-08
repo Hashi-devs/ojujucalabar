@@ -1265,3 +1265,11 @@ body.lbtitle #modal { z-index: 70; }
 #credits .croll { position: relative; top: auto; animation: none; padding: 100vh 24px 55vh; }
 #credits .skip { position: fixed; }
 @media (prefers-reduced-motion: reduce) { #credits .croll { padding-top: 14vh; } }
+
+/* the ? beside Scare level on the title screen, and the note it opens */
+.lblq { display: flex; align-items: center; gap: 8px; }
+.qhelp { width: 24px; height: 24px; border-radius: 50%; padding: 0; display: inline-grid; place-items: center; cursor: pointer; flex: none;
+  font: 700 14px/1 var(--font-body, sans-serif); color: var(--bone, #ece3d2); background: rgba(255, 255, 255, .08); border: 1.5px solid rgba(236, 227, 210, .5); }
+.qhelp.on, .qhelp:hover { background: #e8963f; border-color: #e8963f; color: #1a1006; }
+.qtip { font-size: 13px; line-height: 1.45; color: var(--bone, #ece3d2); background: rgba(14, 10, 16, .92); border: 1px solid rgba(236, 227, 210, .22); border-radius: 10px; padding: 9px 12px; margin: 0; }
+.qtip b { color: #f0b46a; font-weight: 600; }

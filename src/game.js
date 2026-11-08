@@ -1550,12 +1550,18 @@ function showTitle() {
     <div class="btnrow"><button class="btn" id="tBoard">Leaderboard</button><button class="btn" id="tGal">Gallery</button><button class="btn" id="tCred">Credits</button></div>
     <div class="lbl">Language</div>
     <div class="seg" id="tLang"><button data-lang="en" class="${G.lang === 'en' ? 'on' : ''}">English</button><button data-lang="pcm" class="${G.lang === 'pcm' ? 'on' : ''}">Pidgin</button></div>
-    <div class="lbl">Scare level</div>
+    <div class="lbl lblq">Scare level <button class="qhelp" id="tModeQ" aria-label="What does scare level do?" aria-expanded="false">?</button></div>
+    <div class="qtip" id="tModeTip" hidden><b>Haunted</b>: the full game, with jump scares and the dread meter. Only Haunted runs go on the leaderboard.<br><b>Gentle</b>: no jump scares and no dread meter.<br>Headphones make it worse.</div>
     <div class="seg" id="tMode"><button data-m="haunted" class="${G.mode === 'haunted' ? 'on' : ''}">Haunted</button><button data-m="gentle" class="${G.mode === 'gentle' ? 'on' : ''}">Gentle</button></div>
-    <p class="tag" style="font-size:13px;margin:0">Gentle turns off jump scares and the dread meter. Only Haunted runs go on the leaderboard. Headphones make it worse.</p><p class="ver">Version ${VERSION_TAG}</p></div>`;
+    <p class="ver">Version ${VERSION_TAG}</p></div>`;
   // with no Tap to enter on the loading screen, the first touch anywhere here wakes the sound and the music
   t.addEventListener('pointerdown', () => { Snd.init(); Snd.music(true); }, { once: true });
   $('#tLang').onclick = e => { const b = e.target.closest('[data-lang]'); if (b && b.dataset.lang !== G.lang) { setLang(b.dataset.lang); showTitle(); } };
+  // the ? beside Scare level opens a short explanation; tapping it again, or anywhere else, closes it
+  const q = $('#tModeQ'), tip = $('#tModeTip');
+  const showTip = on => { tip.hidden = !on; q.setAttribute('aria-expanded', on); q.classList.toggle('on', on); };
+  q.onclick = e => { e.stopPropagation(); showTip(tip.hidden); };
+  t.addEventListener('pointerdown', e => { if (!tip.hidden && !e.target.closest('#tModeQ, #tModeTip')) showTip(false); });
   $('#tMode').onclick = e => { const b = e.target.closest('[data-m]'); if (b) { setMode(b.dataset.m); $$('#tMode button').forEach(x => x.classList.toggle('on', x === b)); } };
   let armed = false;
   $('#tNew').onclick = ev => {
