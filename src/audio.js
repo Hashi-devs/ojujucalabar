@@ -3,8 +3,10 @@ const Snd = (() => {
   let ctx = null, master = null, top = null, noise = null, outNode = null;   // every sound goes to master; master and the voices meet at top
   let muted = !!store.get('hm3_mute');
 
+  function away() { return document.hidden || document.visibilityState === 'hidden' || awayFlag; }
+  let awayFlag = false;
   function init() {
-    if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+    if (ctx) { if (ctx.state === 'suspended' && !away()) ctx.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     try {
@@ -220,6 +222,13 @@ const Snd = (() => {
     verb = ctx.createConvolver(); verb.buffer = ir; verb.connect(top);
     return verb;
   }
+  // decoded voices are big (about 0.8 MB a line); keep the latest few, so long sessions on small phones stay smooth
+  const vorder = [];
+  function trimCache(uri) {
+    const i = vorder.indexOf(uri); if (i >= 0) vorder.splice(i, 1); vorder.push(uri);
+    while (vorder.length > 18) delete vcache[vorder.shift()];
+  }
+  function preload(list) { if (!ctx) return; (list || []).slice(0, 18).forEach(u => { if (u && !vcache[u]) decode(u).catch(() => {}); }); }
   function decode(uri) {
     if (vcache[uri]) return vcache[uri];
     vcache[uri] = bytesOf(uri).then(b => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej)));
@@ -229,14 +238,19 @@ const Snd = (() => {
   // who: 'ojuju' (deep, doubled, from behind), 'mama' (soft, echoing), 'kid' (small Tobi, a memory), 'plain' (Tobi himself)
   /* voices still speaking, so a new panel or a skip can hush them */
   const VOX = [];
+  let vgen = 0;   // bumped by every hush: a voice still loading when it was hushed must not start afterwards
   function stopVoices() {
+    vgen++;
     if (!ctx) return;
     const t = ctx.currentTime;
     VOX.splice(0).forEach(r => { r.gains.forEach(g => { g.gain.cancelScheduledValues(t); g.gain.setTargetAtTime(0, t, .04); }); r.srcs.forEach(x => { try { x.stop(t + .2); } catch (e) { /* done */ } }); });
   }
   async function voice(uri, who) {
     if (!ctx || muted || !uri) return 0;
+    const gen = vgen;
     let ab; try { ab = await decode(uri); } catch (e) { return 0; }
+    if (gen !== vgen || away()) return 0;   // skipped past (or left the tab) while it was loading
+    trimCache(uri);
     const P = { ojuju: { rate: .8, wet: .5, dry: .9, hp: 60, lp: 3200, pan: .7, under: .45 }, mama: { rate: .98, wet: .75, dry: .55, hp: 260, lp: 5200, pan: .35, echo: .3 }, kid: { rate: 1.12, wet: .55, dry: .7, hp: 300, lp: 7000, pan: .8 }, plain: { rate: 1, wet: .1, dry: 1, hp: 80, lp: 9000, pan: 0 } }[who] || { rate: .92, wet: .6, dry: .6, hp: 200, lp: 4500, pan: .5 };
     const t = ctx.currentTime + .02, pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
     const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = P.hp;
@@ -331,15 +345,16 @@ const Snd = (() => {
   }
 
   const api = {
-    init, voice, stopVoices, radio, murmur, music, musicScore, mosquito, generator, ekpe, choir, rooster,
+    init, voice, stopVoices, preload, radio, murmur, music, musicScore, mosquito, generator, ekpe, choir, rooster,
     get muted() { return muted; },
     setMuted(m) {
       muted = m; store.set('hm3_mute', m);
       if (top) top.gain.setTargetAtTime(m ? 0 : 0.9, ctx.currentTime, 0.05);
     },
     adMute(on) { if (top) top.gain.setTargetAtTime(on || muted ? 0 : 0.9, ctx.currentTime, 0.05); },
-    suspend() { if (ctx && ctx.state === 'running') ctx.suspend(); },
-    resume() { if (ctx && ctx.state === 'suspended') ctx.resume(); },
+    // leaving the tab or the app silences everything at once (the volume drops first, so nothing trails on while the context winds down)
+    suspend() { awayFlag = true; if (!ctx) return; try { top.gain.cancelScheduledValues(ctx.currentTime); top.gain.setValueAtTime(0, ctx.currentTime); } catch (e) { /* fine */ } if (ctx.state === 'running') ctx.suspend(); },
+    resume() { awayFlag = false; if (!ctx || away()) return; if (ctx.state === 'suspended') ctx.resume(); top.gain.setTargetAtTime(muted ? 0 : 0.9, ctx.currentTime, .15); },
     tick() { tone(520, 0.05, 'square', 0.04); },
     // the warning before Ojuju comes: a dry clicking, like a calabash rattle (Amuro's recording replaces it: assets/sfx/warn.mp3)
     warn() { [0, .09, .2, .29, .52, .61, .72].forEach(d => { burst(.03, .45, 2600, 'bandpass', 6, d); tone(1900, .02, 'square', .05, null, d); }); },
@@ -392,7 +407,7 @@ const Snd = (() => {
   const MIX = { warn: { v: 1 }, step: { v: .35 }, tap: { v: .5 }, click: { v: .45 }, select: { v: .4 }, pickup: { v: .5, layer: 1 }, slam: { v: 1, layer: 1 },
     thump: { v: .8 }, open: { v: .7 }, creak: { v: .7 }, unlock: { v: .8 }, bell: { v: .75 }, knock: { v: .8 },
     shriek: { v: 1 }, heartbeat: { v: .85 }, rooster: { v: .7 }, mosquito: { v: .45 }, giggle: { v: .6 }, flame: { v: .8 }, pound: { v: .85, layer: 1 }, kettle: { v: .5 }, snuff: { v: .8 }, ekpe: { v: .3, layer: 1 } };
-  const KEEP = ['init', 'stopVoices', 'setMuted', 'adMute', 'suspend', 'resume', 'radio', 'murmur', 'voice', 'music', 'musicScore', 'stompAt', 'creakAt', 'muted'];
+  const KEEP = ['init', 'preload', 'stopVoices', 'setMuted', 'adMute', 'suspend', 'resume', 'radio', 'murmur', 'voice', 'music', 'musicScore', 'stompAt', 'creakAt', 'muted'];
   Object.keys(api).forEach(k => {
     const d = Object.getOwnPropertyDescriptor(api, k);
     if (KEEP.includes(k) || typeof d.value !== 'function') return;

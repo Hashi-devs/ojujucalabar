@@ -1506,7 +1506,7 @@ function results(all) {
     <p class="lead">${all ? 'You found every page. You know what your father did, who Effiong Etim was, and why Mama ran.' : 'Effiong Etim has his name back. But the house kept some of its story.'}</p>
     <p class="runstats">Time ${fmtRun(runMs())} · Pages ${G.pages.length}/${PAGES.length} · Cowries ${G.cowries.length}/7 · Hints ${G.hints} · Scares survived ${G.scares}</p>
     ${all ? '' : `<p class="hint-note">The true ending needs every page. Still missing: ${left.map(([r, n]) => r.name.replace('The ', '') + ' (' + n + ')').join(', ')}.</p>`}
-    <div class="col"><button class="btn primary" data-share>Share your escape</button><button class="btn" data-again>${all ? 'Play again' : 'Go back in'}</button></div>`, { dismiss: false });
+    <div class="col"><button class="btn primary" data-share>Share your escape</button><button class="btn" data-again>${all ? 'Home' : 'Go back in'}</button></div>`, { dismiss: false });
   panel.scrollTop = 0;
   panel.onclick = e => {
     const lb = e.target.closest('[data-lb]');
@@ -1665,6 +1665,11 @@ $('#bJournal').addEventListener('click', () => { if (G.started && !G.busy && !G.
 $('#bHint').addEventListener('click', () => { if (G.started && !G.busy && !G.over) openHint(); });
 $('#bMenu').addEventListener('click', () => { if (G.started && !G.busy && !G.over) openMenu(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden) Snd.suspend(); else Snd.resume(); });
+// some phones switch apps or lock the screen without a visibility change: catch those too
+window.addEventListener('pagehide', () => Snd.suspend());
+window.addEventListener('pageshow', () => { if (!document.hidden) Snd.resume(); });
+window.addEventListener('blur', () => Snd.suspend());
+window.addEventListener('focus', () => { if (!document.hidden) Snd.resume(); });
 document.addEventListener('pointerdown', () => Snd.init(), { once: true });
 
 /* ---------- loading screen ---------- */

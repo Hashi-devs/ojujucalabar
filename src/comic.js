@@ -283,6 +283,8 @@ function playComic(name, done) {
   let pi = 0, shown = 0, busy = false;
   const wasPaused = G.paused;
   G.paused = true; comicEl.classList.add('on'); comicEl.classList.toggle('pastmode', !!(pages[0] && pages[0].past));
+  // load this comic's voices up front, so tapping quickly never waits on one
+  Snd.preload && Snd.preload(pages.flatMap(pp => pp.panels.flatMap(pn => (pn.say || []).map(b => b.v && VOICES[b.v]))).filter(Boolean));
   // the voices on a panel speak one after another, never over each other; moving on hushes them
   let vtok = 0;
   const playVoices = async p => {
