@@ -41,6 +41,17 @@ for w, n in [(400, 'Regular'), (700, 'Bold'), (800, 'ExtraBold')]:
 fp = os.path.join(ROOT, 'assets', 'fonts', 'Boldonse.sub.woff')
 if os.path.exists(fp):
     font_css += '@font-face { font-family: "Boldonse"; font-style: normal; font-weight: 400; font-display: block; src: url(data:font/woff;base64,%s) format("woff"); }\n' % base64.b64encode(open(fp, 'rb').read()).decode()
+# Garet, for STUDIOS under the logo: drop any Garet file (Book/Regular) into assets/fonts and it's cut down to those letters and embedded
+import glob
+gsrc = sorted(glob.glob(os.path.join(ROOT, 'assets', 'fonts', 'Garet*.*')), key=lambda f: ('Book' not in f and 'Regular' not in f, f))
+gsrc = [f for f in gsrc if f.lower().endswith(('.ttf', '.otf', '.woff', '.woff2')) and '.sub.' not in f]
+if gsrc:
+    from fontTools import subset as _fs
+    gout = os.path.join(ROOT, 'assets', 'fonts', 'Garet.sub.woff')
+    _fs.main([gsrc[0], '--text=STUDIOstudio', '--flavor=woff', '--output-file=' + gout])
+    font_css += '@font-face { font-family: "Garet"; font-style: normal; font-weight: 400; font-display: block; src: url(data:font/woff;base64,%s) format("woff"); }\n' % base64.b64encode(open(gout, 'rb').read()).decode()
+else:
+    font_css += '@font-face { font-family: "Garet"; font-style: normal; font-weight: 400; src: local("Garet Book"), local("Garet-Book"), local("Garet"); }\n'
 css_inline = font_css + css
 # web builds: the Ojuju letters come as files (the opening only needs Boldonse, which stays inside the page)
 web_font_css = font_css
@@ -75,7 +86,7 @@ if os.path.isdir(vdir):
             print('voice line embedded:', fn, len(voices[vid]) // 1024, 'KB')
         except Exception as e:
             print('could not convert', fn, e)
-VERSION = '4.6.3'
+VERSION = '4.6.4'
 # drawings dropped into a folder by name replace the placeholder of that name:
 #   assets/comic/<panel art id>.png|jpg|jpeg|webp  -> comic panels
 #   assets/gallery/<g1..g7>.png|jpg|jpeg|webp      -> gallery pictures

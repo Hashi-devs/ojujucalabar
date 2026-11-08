@@ -1136,11 +1136,16 @@ body.lbtitle #modal { z-index: 70; }
 #splash.gone { display: none; }
 /* the studio card: an ember glow, letters that flicker on like a failing bulb, a line drawn out, a glitch, then black */
 #splash .spwrap { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 20px; }
-#splash .sp { font-family: "Boldonse", var(--font-display); color: #fff; font-size: clamp(22px, 7vw, 56px); line-height: 1.4; letter-spacing: .04em; text-transform: uppercase; text-align: center; white-space: nowrap; }
+/* the studio logo, after Amuro's sketch: MUNIAC in Boldonse, a line, then STUDIOS in Garet spread to the same width */
+#splash .splogo { display: inline-flex; flex-direction: column; align-items: stretch; gap: clamp(8px, 2vw, 14px); }
+#splash .sp { font-family: "Boldonse", var(--font-display); color: #fff; font-size: clamp(30px, 11vw, 92px); line-height: 1.25; letter-spacing: .02em; text-transform: uppercase; text-align: center; white-space: nowrap; }
 #splash .sp span { display: inline-block; opacity: 0; }
 #splash.play .sp span { animation: spflick .55s steps(1, end) forwards; animation-delay: var(--d); }
 @keyframes spflick { 0% { opacity: 0; } 12% { opacity: 1; } 22% { opacity: .1; } 34% { opacity: .9; } 46% { opacity: 0; } 60% { opacity: 1; text-shadow: 0 0 18px rgba(255, 170, 90, .9); } 100% { opacity: 1; text-shadow: 0 0 22px rgba(235, 148, 64, .45), 0 0 2px #fff; } }
-#splash .spline { display: block; width: min(420px, 70vw); height: 2px; background: linear-gradient(90deg, transparent, #eb9440 20%, #ffd9a0 50%, #eb9440 80%, transparent); transform: scaleX(0); box-shadow: 0 0 12px rgba(235, 148, 64, .8); }
+#splash .spline { display: block; width: 100%; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,.15), #fff 12%, #fff 88%, rgba(255,255,255,.15)); transform: scaleX(0); box-shadow: 0 0 10px rgba(255, 255, 255, .35); }
+#splash .spsub { display: flex; justify-content: space-between; font-family: "Garet", "Montserrat", "Century Gothic", "Avenir Next", "Segoe UI", Roboto, sans-serif; font-weight: 400; font-size: clamp(13px, 3.6vw, 30px); line-height: 1; color: #fff; opacity: 0; padding: 0 .1em; }
+#splash .spsub b { font-weight: inherit; }
+#splash.play .spsub { animation: sppre .5s ease 1.8s forwards; }
 #splash.play .spline { animation: spline .6s cubic-bezier(.2, .8, .2, 1) 1.3s forwards; }
 @keyframes spline { to { transform: scaleX(1); } }
 #splash .sppre { font-family: var(--font-display); font-size: clamp(14px, 3.4vw, 20px); letter-spacing: .5em; text-transform: lowercase; color: #b0a591; opacity: 0; margin-right: -.5em; }
@@ -1157,7 +1162,7 @@ body.lbtitle #modal { z-index: 70; }
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
 #splash.play .spgrain { animation: spgrain .4s steps(4) infinite; }
 @keyframes spgrain { 0% { transform: translate(0, 0); } 25% { transform: translate(-8%, 4%); } 50% { transform: translate(5%, -6%); } 75% { transform: translate(-3%, 7%); } 100% { transform: translate(0, 0); } }
-@media (prefers-reduced-motion: reduce) { #splash.play .sp span, #splash.play .spline, #splash.play .sppre { animation: none; opacity: 1; transform: none; } #splash.play .spwrap { animation: spout .35s ease 2.85s forwards; } #splash.play .spgrain { animation: none; } }
+@media (prefers-reduced-motion: reduce) { #splash.play .sp span, #splash.play .spline, #splash.play .sppre, #splash.play .spsub { animation: none; opacity: 1; transform: none; } #splash.play .spwrap { animation: spout .35s ease 2.85s forwards; } #splash.play .spgrain { animation: none; } }
 #loading .lstudio { display: none; }
 
 /* ================= home screen (v2): full picture, the name, Start; then the menu centred over it ================= */
