@@ -52,6 +52,10 @@ if gsrc:
     font_css += '@font-face { font-family: "Garet"; font-style: normal; font-weight: 400; font-display: block; src: url(data:font/woff;base64,%s) format("woff"); }\n' % base64.b64encode(open(gout, 'rb').read()).decode()
 else:
     font_css += '@font-face { font-family: "Garet"; font-style: normal; font-weight: 400; src: local("Garet Book"), local("Garet-Book"), local("Garet"); }\n'
+# Ogaranya (by Nebo Ikechukwu Kingsley), the body font: kept inside the page, never as a separate downloadable file, as its licence asks
+_og = os.path.join(ROOT, 'assets', 'fonts', 'Ogaranya-Regular.woff2')
+if os.path.exists(_og):
+    font_css += '@font-face { font-family: "Ogaranya"; font-style: normal; font-weight: 400; font-display: swap; src: url(data:font/woff2;base64,%s) format("woff2"); }\n' % base64.b64encode(open(_og, 'rb').read()).decode()
 css_inline = font_css + css
 # web builds: the Ojuju letters come as files (the opening only needs Boldonse, which stays inside the page)
 web_font_css = font_css
@@ -86,7 +90,7 @@ if os.path.isdir(vdir):
             print('voice line embedded:', fn, len(voices[vid]) // 1024, 'KB')
         except Exception as e:
             print('could not convert', fn, e)
-VERSION = '4.7.3'
+VERSION = '4.7.4'
 # drawings dropped into a folder by name replace the placeholder of that name:
 #   assets/comic/<panel art id>.png|jpg|jpeg|webp  -> comic panels
 #   assets/gallery/<g1..g7>.png|jpg|jpeg|webp      -> gallery pictures
