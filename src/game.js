@@ -41,7 +41,7 @@ const CANDLE_WORD = { white: 'BONE', red: 'BLOOD', blue: 'SEA', green: 'GRAVE' }
 const G = {
   started: false, over: false, paused: false, busy: false, ending: false,
   room: 0, f: {}, inv: [], sel: null, journal: [], pages: [],
-  dread: 0, thr: {}, mode: store.get('hm3_mode') === 'gentle' ? 'gentle' : 'haunted', lang: store.get('oc_lang') === 'pcm' ? 'pcm' : 'en',
+  dread: 0, thr: {}, mode: store.get('hm3_mode') === 'gentle' ? 'gentle' : 'haunted', lang: 'en',   // English only (the Pidgin text is kept in pidgin.js but no longer offered)
   hints: 0, scares: 0, t0: Date.now(), hintLv: {}, snap: null, lastBig: 0, token: 0, lives: 5, chap: null,
   cam: { pos: [0, 1.6, 2], yaw: 0, pitch: 0 }
 };
@@ -1548,15 +1548,12 @@ function showTitle() {
     ${sv ? `<button class="btn primary" id="tCont">Continue in ${ROOMS[sv.room].name}</button><button class="btn" id="tNew">New game</button>` : '<button class="btn primary" id="tNew">Enter the house</button>'}
     ${chapterOpen() ? '<button class="btn" id="tChap">Chapter select</button>' : ''}
     <div class="btnrow"><button class="btn" id="tBoard">Leaderboard</button><button class="btn" id="tGal">Gallery</button><button class="btn" id="tCred">Credits</button></div>
-    <div class="lbl">Language</div>
-    <div class="seg" id="tLang"><button data-lang="en" class="${G.lang === 'en' ? 'on' : ''}">English</button><button data-lang="pcm" class="${G.lang === 'pcm' ? 'on' : ''}">Pidgin</button></div>
     <div class="lbl lblq">Scare level <button class="qhelp" id="tModeQ" aria-label="What does scare level do?" aria-expanded="false">?</button></div>
     <div class="qtip" id="tModeTip" hidden><b>Haunted</b>: the full game, with jump scares and the dread meter. Only Haunted runs go on the leaderboard.<br><b>Gentle</b>: no jump scares and no dread meter.<br>Headphones make it worse.</div>
     <div class="seg" id="tMode"><button data-m="haunted" class="${G.mode === 'haunted' ? 'on' : ''}">Haunted</button><button data-m="gentle" class="${G.mode === 'gentle' ? 'on' : ''}">Gentle</button></div>
     <p class="ver">Version ${VERSION_TAG}</p></div>`;
   // with no Tap to enter on the loading screen, the first touch anywhere here wakes the sound and the music
   t.addEventListener('pointerdown', () => { Snd.init(); Snd.music(true); }, { once: true });
-  $('#tLang').onclick = e => { const b = e.target.closest('[data-lang]'); if (b && b.dataset.lang !== G.lang) { setLang(b.dataset.lang); showTitle(); } };
   // the ? beside Scare level opens a short explanation; tapping it again, or anywhere else, closes it
   const q = $('#tModeQ'), tip = $('#tModeTip');
   const showTip = on => { tip.hidden = !on; q.setAttribute('aria-expanded', on); q.classList.toggle('on', on); };
@@ -1606,8 +1603,6 @@ function openMenu() {
       <button class="btn primary" data-a="resume">Back to the house</button>
       <div class="lbl" style="color:var(--bone-dim);font-size:13px">Scare level</div>
       <div class="seg" id="mMode"><button data-m="haunted" class="${G.mode === 'haunted' ? 'on' : ''}">Haunted</button><button data-m="gentle" class="${G.mode === 'gentle' ? 'on' : ''}">Gentle</button></div>
-      <div class="lbl" style="color:var(--bone-dim);font-size:13px">Language</div>
-      <div class="seg" id="mLang"><button data-lang="en" class="${G.lang === 'en' ? 'on' : ''}">English</button><button data-lang="pcm" class="${G.lang === 'pcm' ? 'on' : ''}">Pidgin</button></div>
       <div class="lbl" style="color:var(--bone-dim);font-size:13px">Graphics</div>
       <div class="seg" id="mGfx">${[['auto', 'Auto'], ['high', 'High'], ['low', 'Low (smoother)']].map(([k, n]) => `<button data-g="${k}" class="${G.gfx === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="lbl" style="color:var(--bone-dim);font-size:13px">Look speed</div>
@@ -1759,7 +1754,7 @@ if (glOK) {
   R3.svgTex('silas', SILAS_SVG, 128, 256); R3.svgTex('kid', KID_SVG, 64, 128); R3.svgTex('eyes', EYES_SVG, 128, 64);
 }
 syncSound(); renderBag(); updDread(); renderLives(); checkOrient(); if (glOK) applyGfx();
-if (G.lang === 'pcm') setLang('pcm');
+
 showTitle();
 adsInit();
 bootLoading();
