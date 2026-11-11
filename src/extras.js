@@ -99,7 +99,7 @@ const CREDITS = [
     ['Willie David Enobang', 'Effiong Etim · Ojuju Calabar'],
     ['Taiye Hikmah Ayomide', 'Adaeze Adeleke (Mama)']]],
   ['Sound effects', ['Amuro Ayomiposi', 'Kenney (kenney.nl)', 'Mixkit (mixkit.co)', 'YouTube']],
-  ['Typefaces', [['Ojuju', 'by Chisaokwu Joboson'], ['Ogaranya', 'by Nebo Ikechukwu Kingsley'], ['Boldonse', 'by Universitype'], ['Garet', 'by Spacetype']]],
+  ['Typefaces', [['Ojuju', 'by Chisaokwu Joboson'], ['Ogaranya', 'by Nebo Ikechukwu Kingsley']]],
   ['', 'Thanks for playing our game.'],
   ['', 'Remember, Ojuju is watching =)']
 ];
