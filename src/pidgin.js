@@ -2,6 +2,17 @@
 /* Narration, hints, menus, labels and the ghosts' voices. Documents (diary, letters, notes, memory pages) stay in the
    English they were written in. Please have a native speaker read it through before release. */
 const PCM = {
+/* added 11 Nov: title help, menu and results */
+"Restart room": "Start this room again",
+"Home": "Go home",
+"Tap again: this run leaves the leaderboard": "Tap am again: this run no go enter leaderboard",
+": the full game, with jump scares and the dread meter. Only Haunted runs go on the leaderboard.": ": the full game, with jump scare and the fear meter. Na only Haunted runs dey enter leaderboard.",
+": no jump scares and no dread meter.": ": no jump scare, no fear meter.",
+"Headphones make it worse.": "Headphone go make am worse.",
+"This run was played on Gentle. Only Haunted runs go on the leaderboard: pick Haunted on the title screen before you start.": "You play this run for Gentle. Na only Haunted runs dey enter leaderboard: choose Haunted for the title screen before you start.",
+"This run started before the leaderboard could time it (an older save, or the game was opened offline). Start a new game while online to race.": "This run start before the leaderboard fit time am (old save, or you open the game without data). Start new game when data dey on, make you race.",
+"The scare level was switched to Gentle during this run, so it can’t go on the leaderboard. Keep it on Haunted from start to finish.": "You change am to Gentle for middle of this run, so e no fit enter leaderboard. Leave am for Haunted from start reach finish.",
+"The leaderboard couldn’t be reached when this run started, so it wasn’t timed. Start a new game with internet on to race.": "The leaderboard no reach when this run start, so nobody time am. Start new game with data on, make you race.",
 "Tap the old radio on the workbench and change stations with the arrows or the knob.": "Tap the old radio for the workbench, change station with the arrows or the knob.",
 "Keep changing station until a man’s voice comes through. His message plays by itself.": "Continue to change station until one man voice come. Him message go play by itself.",
 "Tap the arrows or the knob to change station. Listen for a voice.": "Tap the arrows or the knob to change station. Listen for one voice.",
