@@ -1,0 +1,42 @@
+# Builds the Android app (APK) on GitHub's computers, so nobody needs a PC.
+# Runs on every push to main that changes the game, or by hand from the Actions tab ("Run workflow").
+# The APK appears under the run's "Artifacts" as ojuju-calabar-apk.
+name: Android APK
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths: ['www/**', 'capacitor.config.json', '.github/workflows/android-apk.yml']
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Add Capacitor and the Android project
+        run: |
+          npm i --no-save @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          npx cap add android
+          npx cap sync android
+      - name: App icon and version
+        run: |
+          RES=android/app/src/main/res
+          rm -rf $RES/mipmap-anydpi-v26
+          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+            n=${d%%:*}; s=${d##*:}
+            convert www/icon-512.png -resize ${s}x${s} $RES/mipmap-$n/ic_launcher.png
+            convert www/icon-512.png -resize ${s}x${s} $RES/mipmap-$n/ic_launcher_round.png
+            convert www/icon-512.png -resize ${s}x${s} $RES/mipmap-$n/ic_launcher_foreground.png
+          done
+          V=$(node -p "require('./package.json').version")
+          sed -i "s/versionName \".*\"/versionName \"$V\"/" android/app/build.gradle
+          sed -i "s/versionCode [0-9]*/versionCode ${GITHUB_RUN_NUMBER}/" android/app/build.gradle
+      - name: Build the APK
+        run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ojuju-calabar-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
