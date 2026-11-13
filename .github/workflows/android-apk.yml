@@ -6,7 +6,7 @@ on:
   workflow_dispatch: {}
   push:
     branches: [main]
-    paths: ['www/**', 'capacitor.config.json', '.github/workflows/android-apk.yml']
+    paths: ['www/**', 'capacitor.config.json', 'android-icons/**', '.github/workflows/android-apk.yml']
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -25,12 +25,7 @@ jobs:
         run: |
           RES=android/app/src/main/res
           rm -rf $RES/mipmap-anydpi-v26
-          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
-            n=${d%%:*}; s=${d##*:}
-            convert www/icon-512.png -resize ${s}x${s} $RES/mipmap-$n/ic_launcher.png
-            convert www/icon-512.png -resize ${s}x${s} $RES/mipmap-$n/ic_launcher_round.png
-            convert www/icon-512.png -resize ${s}x${s} $RES/mipmap-$n/ic_launcher_foreground.png
-          done
+          cp -r android-icons/* $RES/   # the game icon, pre-sized for every screen density
           V=$(node -p "require('./package.json').version")
           sed -i "s/versionName \".*\"/versionName \"$V\"/" android/app/build.gradle
           sed -i "s/versionCode [0-9]*/versionCode ${GITHUB_RUN_NUMBER}/" android/app/build.gradle
