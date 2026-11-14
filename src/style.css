@@ -1273,3 +1273,7 @@ body.lbtitle #modal { z-index: 70; }
 .qhelp.on, .qhelp:hover { background: #e8963f; border-color: #e8963f; color: #1a1006; }
 .qtip { font-size: 13px; line-height: 1.45; color: var(--bone, #ece3d2); background: rgba(14, 10, 16, .92); border: 1px solid rgba(236, 227, 210, .22); border-radius: 10px; padding: 9px 12px; margin: 0; }
 .qtip b { color: #f0b46a; font-weight: 600; }
+
+/* the short notice under the leaderboard name box */
+.lbnote { font-size: 12px; opacity: .7; margin: 6px 0 0; text-align: center; }
+.lbnote a { color: #f0c98a; }

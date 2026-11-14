@@ -87,6 +87,7 @@ function lbResultsHtml() {
   return `<div class="lbbox"><div class="lbt">Speedrun leaderboard</div>
     <p class="lbmsg">Your time: <b>${fmtRun(runMs())}</b>. Put it on the board.</p>
     <div class="lbrow"><input id="lbName" maxlength="16" autocomplete="nickname" spellcheck="false" placeholder="Your name" value="${esc(store.get('oc_lbname') || '')}" aria-label="Your name for the leaderboard"><button class="btn primary" data-lb="post">Post</button></div>
+    <p class="lbnote">Your name and time are shown publicly on the leaderboard. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p>
     <p class="lbmsg" id="lbStatus" aria-live="polite"></p>
     <button class="btn" data-lb="view">See the leaderboard</button></div>`;
 }

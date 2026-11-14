@@ -2,6 +2,7 @@
 /* Narration, hints, menus, labels and the ghosts' voices. Documents (diary, letters, notes, memory pages) stay in the
    English they were written in. Please have a native speaker read it through before release. */
 const PCM = {
+"Your name and time are shown publicly on the leaderboard.": "Everybody go see your name and your time for the leaderboard.",
 /* added 11 Nov: title help, menu and results */
 "Restart room": "Start this room again",
 "Home": "Go home",

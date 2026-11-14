@@ -90,7 +90,7 @@ if os.path.isdir(vdir):
             print('voice line embedded:', fn, len(voices[vid]) // 1024, 'KB')
         except Exception as e:
             print('could not convert', fn, e)
-VERSION = '4.7.6'
+VERSION = '4.7.7'
 # drawings dropped into a folder by name replace the placeholder of that name:
 #   assets/comic/<panel art id>.png|jpg|jpeg|webp  -> comic panels
 #   assets/gallery/<g1..g7>.png|jpg|jpeg|webp      -> gallery pictures
@@ -191,6 +191,15 @@ standalone = '''<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0c0a11">
+<meta name="description" content="A first-person Nigerian folk-horror escape game. Seven rooms. One name to remember. Free on phone and PC.">
+<meta property="og:title" content="Ojuju Calabar">
+<meta property="og:description" content="A first-person Nigerian folk-horror escape game. Seven rooms. One name to remember.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ojujucalabar.vercel.app/">
+<meta property="og:image" content="https://ojujucalabar.vercel.app/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ojujucalabar.vercel.app/og.jpg">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -203,6 +212,7 @@ standalone = '''<!doctype html>
 </html>
 '''
 www = os.path.join(ROOT, 'www'); os.makedirs(www, exist_ok=True)
+if os.path.exists(os.path.join(ROOT, 'assets', 'og.jpg')): shutil.copy(os.path.join(ROOT, 'assets', 'og.jpg'), os.path.join(www, 'og.jpg'))   # the link-preview picture
 shell = standalone
 standalone = shell.replace('@@FRAGMENT@@', make_fragment(external_js(www), font_css_web + css_body)); copy_fonts(www)
 open(os.path.join(www, 'index.html'), 'w', encoding='utf-8').write(standalone)
